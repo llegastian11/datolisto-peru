@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
 const publicDir = join(root, "public");
+const distDir = join(root, "dist");
 
 async function loadEnv() {
   try {
@@ -444,16 +445,21 @@ async function serveStatic(req, res) {
 
   const requestPath = url.pathname === "/" ? "/index.html" : url.pathname;
   const safePath = normalize(decodeURIComponent(requestPath)).replace(/^(\.\.[/\\])+/, "");
-  const filePath = join(publicDir, safePath);
+  const filePath = join(distDir, safePath);
 
-  if (!filePath.startsWith(publicDir)) {
+  if (!filePath.startsWith(distDir)) {
     res.writeHead(403);
     res.end("Forbidden");
     return;
   }
 
   try {
-    const file = await readFile(filePath);
+    let file;
+    try {
+      file = await readFile(filePath);
+    } catch {
+      file = await readFile(join(publicDir, safePath));
+    }
     const ext = extname(filePath);
     const body = ext === ".html" ? applySiteTemplate(file.toString("utf8")) : file;
     res.writeHead(200, {

@@ -1,0 +1,98 @@
+---
+import LookupApp from "../components/LookupApp.jsx";
+import "../styles/global.css";
+
+const siteUrl = "__SITE_URL__";
+const title = "DatoListo Peru | Consulta DNI, RUC, CPE y calculadoras gratis";
+const description = "Consulta datos publicos de DNI y RUC, valida comprobantes CPE, revisa tipo de cambio y usa calculadoras laborales y tributarias para Peru. Gratis y sin guardar tus busquedas.";
+const keywords = "consulta DNI Peru, consulta RUC, validar CPE SUNAT, tipo de cambio Peru, calculadora IGV, calculadora CTS, calculadora gratificacion, DatoListo Peru";
+
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "DatoListo Peru",
+  url: `${siteUrl}/`,
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  inLanguage: "es-PE",
+  description,
+  offers: { "@type": "Offer", price: "0", priceCurrency: "PEN" },
+  featureList: [
+    "Consulta DNI",
+    "Consulta RUC",
+    "Validacion CPE",
+    "Tipo de cambio",
+    "Calculadora IGV",
+    "Calculadora CTS",
+    "Calculadora de gratificacion",
+    "Validador CCI"
+  ]
+};
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "DatoListo Peru",
+  url: `${siteUrl}/`,
+  logo: `${siteUrl}/logo.svg`
+};
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "DatoListo Peru guarda mis busquedas?",
+      acceptedAnswer: { "@type": "Answer", text: "No guardamos los documentos consultados ni los resultados en el servidor de la aplicacion." }
+    },
+    {
+      "@type": "Question",
+      name: "Los resultados tienen validez oficial?",
+      acceptedAnswer: { "@type": "Answer", text: "No. Son resultados referenciales obtenidos mediante proveedores externos y deben verificarse en la entidad correspondiente." }
+    },
+    {
+      "@type": "Question",
+      name: "DatoListo Peru es gratuito?",
+      acceptedAnswer: { "@type": "Answer", text: "Si. Las herramientas disponibles funcionan sin crear cuenta." }
+    }
+  ]
+};
+---
+
+<!doctype html>
+<html lang="es-PE">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="author" content="DatoListo Peru" />
+    <meta name="application-name" content="DatoListo Peru" />
+    <meta name="theme-color" content="#006b50" />
+    <link rel="canonical" href={`${siteUrl}/`} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="preload" href="/logo.svg" as="image" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_PE" />
+    <meta property="og:site_name" content="DatoListo Peru" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={`${siteUrl}/`} />
+    <meta property="og:image" content={`${siteUrl}/og-image.svg`} />
+    <meta property="og:image:type" content="image/svg+xml" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${siteUrl}/og-image.svg`} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(webAppSchema)} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(organizationSchema)} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(faqSchema)} />
+  </head>
+  <body>
+    <LookupApp client:load />
+  </body>
+</html>

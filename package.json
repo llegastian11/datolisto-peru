@@ -4,10 +4,25 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "npm run build && node server.js",
+    "dev:ui": "astro dev --host 127.0.0.1 --port 3000",
+    "build": "astro build",
+    "preview": "npm run build && node server.js",
     "start": "node server.js",
-    "dev": "node server.js"
+    "check": "astro check && node --check server.js"
   },
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "@astrojs/react": "^6.0.5",
+    "astro": "^7.3.2",
+    "framer-motion": "^13.2.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^6.0.3"
   }
 }
