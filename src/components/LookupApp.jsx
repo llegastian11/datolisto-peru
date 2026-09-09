@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const today = new Date().toISOString().slice(0, 10);
 const currentPeriod = today.slice(0, 7);
@@ -275,16 +275,19 @@ function TableResult({ items = [], columns = [], keys = [] }) {
   );
 }
 
-function Dropdown({ label, groups, onSelect }) {
-  const [open, setOpen] = useState(false);
+function Dropdown({ label, groups, onSelect, open, setOpen }) {
+  const reduceMotion = useReducedMotion();
   return (
-    <div className="nav-menu">
-      <button className="nav-link nav-button" type="button" aria-expanded={open} onClick={() => setOpen(!open)}>
+    <div className="nav-menu"
+      onPointerEnter={(event) => { if (event.pointerType === "mouse") setOpen(true); }}
+      onPointerLeave={(event) => { if (event.pointerType === "mouse" && !event.currentTarget.contains(document.activeElement)) setOpen(false); }}
+      onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false); }}
+      onKeyDown={(event) => { if (event.key === "Escape") { setOpen(false); event.currentTarget.querySelector("button")?.focus(); } }}>
+      <button className="nav-link nav-button" type="button" aria-expanded={open} aria-controls={`menu-${label}`} onClick={() => setOpen(!open)}>
         {label}<span className="chevron" />
       </button>
-      <AnimatePresence>
         {open && (
-          <motion.div className="dropdown" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+          <motion.div id={`menu-${label}`} className="dropdown" initial={reduceMotion ? false : { opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
             {Object.entries(groups).map(([category, entries]) => (
               <div className="dropdown-group" key={category}>
                 <strong>{category}</strong>
@@ -298,7 +301,6 @@ function Dropdown({ label, groups, onSelect }) {
             ))}
           </motion.div>
         )}
-      </AnimatePresence>
     </div>
   );
 }
@@ -307,6 +309,23 @@ export default function LookupApp() {
   const reduceMotion = useReducedMotion();
   const [activeTool, setActiveTool] = useState("dni");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState(null);
+  const navigationRef = useRef(null);
+  const requestRef = useRef(null);
+
+  useEffect(() => {
+    const closeOutside = (event) => {
+      if (!navigationRef.current?.contains(event.target)) {
+        setOpenMenu(null);
+        setMobileOpen(false);
+      }
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      requestRef.current?.abort();
+    };
+  }, []);
   const [values, setValues] = useState({});
   const [result, setResult] = useState(null);
   const [message, setMessage] = useState("");
@@ -354,13 +373,21 @@ export default function LookupApp() {
   }, []);
 
   function selectTool(key) {
+    requestRef.current?.abort();
+    requestRef.current = null;
+    setLoading(false);
+    setOpenMenu(null);
     setActiveTool(key);
     setMobileOpen(false);
-    window.setTimeout(() => document.querySelector("#consulta")?.scrollIntoView({ behavior: "smooth", block: "center" }), 20);
+    window.setTimeout(() => document.querySelector("#consulta")?.scrollIntoView({ behavior: reduceMotion ? "instant" : "smooth", block: "start" }), 20);
   }
 
   async function submit(event) {
     event.preventDefault();
+    requestRef.current?.abort();
+    const controller = new AbortController();
+    requestRef.current = controller;
+    setResult(null);
     setLoading(true);
     setMessage(tool.kind === "local" ? "Calculando..." : "Consultando proveedor...");
     setMessageType("info");
@@ -374,11 +401,13 @@ export default function LookupApp() {
       }
 
       const response = await fetch(tool.endpoint, {
+        signal: controller.signal,
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values)
       });
       const data = await response.json();
+      if (requestRef.current !== controller) return;
       if (!response.ok) throw new Error(data.error || "No se pudo completar la consulta.");
 
       if (tool.kind === "api-table") {
@@ -389,10 +418,11 @@ export default function LookupApp() {
       setMessage("Consulta completada.");
       setMessageType("success");
     } catch (error) {
+      if (controller.signal.aborted || requestRef.current !== controller) return;
       setMessage(error.message);
       setMessageType("error");
     } finally {
-      setLoading(false);
+      if (requestRef.current === controller) setLoading(false);
     }
   }
 
@@ -402,19 +432,19 @@ export default function LookupApp() {
     <>
       <a className="skip-link" href="#consulta">Saltar a la consulta</a>
       <div className="scroll-backdrop" aria-hidden="true" />
-      <header className="topbar">
+      <header className="topbar" ref={navigationRef} onKeyDown={(event) => { if (event.key === "Escape") { setOpenMenu(null); setMobileOpen(false); } }}>
         <a className="brand" href="#inicio" aria-label="DatoListo Peru inicio">
           <img src="/logo.svg" alt="DatoListo Peru" />
         </a>
-        <button className="mobile-toggle" type="button" aria-expanded={mobileOpen} onClick={() => setMobileOpen(!mobileOpen)}>
+        <button className="mobile-toggle" type="button" aria-expanded={mobileOpen} onClick={() => { setMobileOpen(!mobileOpen); setOpenMenu(null); }}>
           <Icon name="menu" />
           <span className="sr-only">Menu</span>
         </button>
         <nav className={mobileOpen ? "main-nav open" : "main-nav"} aria-label="Navegacion principal">
           <a className="nav-link" href="#inicio" onClick={() => setMobileOpen(false)}>Inicio</a>
           <a className="nav-link" href="#instrucciones" onClick={() => setMobileOpen(false)}>Instrucciones</a>
-          <Dropdown label="Consultas" groups={queryGroups} onSelect={selectTool} />
-          <Dropdown label="Calculadoras" groups={calculatorGroups} onSelect={selectTool} />
+          <Dropdown label="Consultas" groups={queryGroups} onSelect={selectTool} open={openMenu === "queries"} setOpen={(open) => setOpenMenu(open ? "queries" : null)} />
+          <Dropdown label="Calculadoras" groups={calculatorGroups} onSelect={selectTool} open={openMenu === "calculators"} setOpen={(open) => setOpenMenu(open ? "calculators" : null)} />
           <a className="nav-link" href="#preguntas" onClick={() => setMobileOpen(false)}>Ayuda</a>
         </nav>
       </header>
