@@ -1,0 +1,17 @@
+{
+  "name": "DatoListo Perú",
+  "short_name": "DatoListo",
+  "description": "Consultas de DNI, RUC, CPE, tipo de cambio y calculadoras para Perú.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f8f7",
+  "theme_color": "#087f6d",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "64x64",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
