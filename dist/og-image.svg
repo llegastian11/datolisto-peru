@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#f5f8f7"/>
+  <circle cx="1010" cy="120" r="260" fill="#dff3ee"/>
+  <circle cx="180" cy="540" r="260" fill="#fff0cc"/>
+  <rect x="80" y="80" width="1040" height="470" rx="36" fill="#fff" stroke="#dfe9e5"/>
+  <rect x="130" y="132" width="72" height="72" rx="18" fill="#087f6d"/>
+  <path d="M149 179h34M149 157h34M149 168h22" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="184" cy="168" r="12" fill="none" stroke="#fff" stroke-width="7"/>
+  <path d="M194 178l14 14" fill="none" stroke="#f4a626" stroke-width="7" stroke-linecap="round"/>
+  <text x="230" y="164" fill="#17211d" font-family="Arial, sans-serif" font-size="34" font-weight="800">DatoListo Perú</text>
+  <text x="130" y="300" fill="#17211d" font-family="Arial, sans-serif" font-size="62" font-weight="900">DNI, RUC, CPE y calculadoras</text>
+  <text x="130" y="370" fill="#68756f" font-family="Arial, sans-serif" font-size="30">Consultas rápidas para validar datos públicos del Perú.</text>
+  <text x="130" y="452" fill="#087f6d" font-family="Arial, sans-serif" font-size="24" font-weight="800">Sin almacenamiento de consultas · API protegida · Resultados referenciales</text>
+</svg>
